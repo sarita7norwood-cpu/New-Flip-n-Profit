@@ -1,0 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .animate-scale-up {
+    animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Custom horizontally running laser-sweep animation used over the scanner viewport */
+@keyframes scan {
+  0% {
+    top: 0%;
+  }
+  50% {
+    top: 99%;
+  }
+  105% {
+    top: 0%;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: #0A0A0A; /* matched from design HTML */
+}
+
+body {
+  font-family: var(--font-sans);
+  color: #ffffff;
+  background-color: #0A0A0A;
+}
+
+/* Custom artistic theme highlights */
+.theme-accent-bg {
+  background-color: #D1FF00;
+}
+
+.theme-accent-text {
+  color: #D1FF00;
+}
+
+.theme-accent-border {
+  border-color: #D1FF00;
+}
+
+.theme-glow-shadow {
+  box-shadow: 0 0 40px rgba(209, 255, 0, 0.15);
+}
+
+.theme-glow-shadow-strong {
+  box-shadow: 0 0 40px rgba(209, 255, 0, 0.3);
+}
+

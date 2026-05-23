@@ -1,0 +1,6 @@
+{
+  "name": "Flip n Profit",
+  "description": "Snap a photo of any item to instantly get fair market prices, demand analytics, professional multi-platform listing copies, and read expert flipper blogs. Built for flipnprofit.com",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
