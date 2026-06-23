@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, DollarSign, Flame, ArrowRight, Search, Compass, HelpCircle, TrendingUp, Coins, ChevronDown, ShieldCheck, Layers, Smartphone, SmartphoneNfc, AppWindow, Gift, Heart, ArrowUp } from 'lucide-react';
+import { Sparkles, DollarSign, Flame, ArrowRight, Search, Compass, HelpCircle, TrendingUp, Coins, ChevronDown, ShieldCheck, Layers, Smartphone, SmartphoneNfc, AppWindow, Gift, Heart, ArrowUp, Send, Terminal, X, Activity } from 'lucide-react';
 import InteractiveScanner from './components/InteractiveScanner';
 import FlipperProfitCalculator from './components/FlipperProfitCalculator';
 import BlogHub from './components/BlogHub';
@@ -7,6 +7,40 @@ import LiveFeed from './components/LiveFeed';
 
 export default function App() {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+
+  // Google Cloud Run Trigger status
+  const [triggerModalOpen, setTriggerModalOpen] = useState(false);
+  const [triggerLoading, setTriggerLoading] = useState(false);
+  const [triggerResult, setTriggerResult] = useState<any>(null);
+  const [triggerError, setTriggerError] = useState<string | null>(null);
+
+  const handleTriggerRunService = async () => {
+    setTriggerLoading(true);
+    setTriggerError(null);
+    setTriggerResult(null);
+    playNavChime();
+    try {
+      const response = await fetch('/api/trigger-run', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setTriggerResult(data);
+      } else {
+        setTriggerError(data.error || `HTTP ${response.status}: ${data.statusText || 'Execution failed'}`);
+        if (data) {
+          setTriggerResult(data);
+        }
+      }
+    } catch (err: any) {
+      setTriggerError(err?.message || 'Network connectivity error fetching api/trigger-run');
+    } finally {
+      setTriggerLoading(false);
+    }
+  };
 
   // Sound generator for clicks
   const playNavChime = () => {
@@ -58,13 +92,26 @@ export default function App() {
           <button onClick={() => handleNavClick('faq-section')} className="hover:text-[#D1FF00] transition-all cursor-pointer">FAQ</button>
         </nav>
 
-        {/* CTA Launch Box styled with a sharp white border */}
-        <button 
-          onClick={() => handleNavClick('scanner-sandbox')}
-          className="border border-white/80 hover:border-[#D1FF00] hover:bg-[#D1FF00] hover:text-black text-white px-5 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer"
-        >
-          <span>Try Sourcing API</span>
-        </button>
+        {/* CTA Launch Boxes & Service Trigger Buttons */}
+        <div className="flex items-center space-x-3">
+          <button 
+            onClick={() => {
+              setTriggerModalOpen(true);
+              playNavChime();
+            }}
+            className="flex items-center space-x-1 border border-[#D1FF00] bg-[#D1FF00]/5 hover:bg-[#D1FF00] hover:text-black text-[#D1FF00] px-4.5 py-2 text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer rounded"
+          >
+            <Activity className="w-3 h-3 animate-pulse" />
+            <span>Developer Run</span>
+          </button>
+
+          <button 
+            onClick={() => handleNavClick('scanner-sandbox')}
+            className="hidden sm:block border border-white/60 hover:border-[#D1FF00] hover:bg-[#D1FF00] hover:text-black text-white px-4 py-2 text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer"
+          >
+            <span>Try Sourcing API</span>
+          </button>
+        </div>
       </header>
 
       {/* Main Core Elements */}
@@ -310,6 +357,131 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* Developer Trigger Modal Overlay */}
+      {triggerModalOpen && (
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 sm:p-6 animate-fade-in text-left">
+          <div className="bg-[#0D0D0D] border border-zinc-900 rounded-3xl w-full max-w-2xl overflow-hidden shadow-[0_0_50px_rgba(209,255,0,0.15)] flex flex-col max-h-[90vh]">
+            {/* Modal Header */}
+            <div className="p-6 border-b border-zinc-900 flex items-center justify-between bg-zinc-950/55">
+              <div className="flex items-center space-x-3 text-left">
+                <Terminal className="w-5 h-5 text-[#D1FF00]" />
+                <div>
+                  <h3 className="text-white text-xs font-black tracking-widest uppercase">Cloud Run Invocation Panel</h3>
+                  <span className="text-[9px] font-mono text-zinc-500 block mt-0.5 uppercase tracking-wider">Validated via OIDC Identity Token Bearer Header</span>
+                </div>
+              </div>
+              <button 
+                onClick={() => {
+                  setTriggerModalOpen(false);
+                  playNavChime();
+                }}
+                className="text-zinc-500 hover:text-white p-1 rounded-lg border border-zinc-900 bg-zinc-950 hover:border-zinc-800 transition-colors cursor-pointer"
+                title="Close console"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto space-y-6 flex-1 text-left">
+              
+              {/* Shell Command Card */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-zinc-500 text-[10px] uppercase font-bold tracking-wider font-mono">Shell Equivalent Trigger</span>
+                  <span className="text-[9px] font-mono text-[#D1FF00] font-extrabold uppercase bg-[#D1FF00]/10 px-2 py-0.5 rounded">POST Payload</span>
+                </div>
+                <div className="bg-zinc-950 p-4 rounded-2xl border border-zinc-900 font-mono text-[10.5px] leading-relaxed text-zinc-300 relative overflow-x-auto select-text scrollbar-thin text-left">
+                  <div className="text-zinc-600 select-none pb-1.5 font-sans italic"># Sends authentic identity tokens with developer identity payloads</div>
+                  <span className="text-[#D1FF00]">curl</span> -X POST <span className="text-zinc-400">"https://flip-n-profit-newest-black-n-green-1041474638199.us-east1.run.app"</span> \<br />
+                  &nbsp;&nbsp;-H <span className="text-zinc-400">"Authorization: bearer $(gcloud auth print-identity-token)"</span> \<br />
+                  &nbsp;&nbsp;-H <span className="text-zinc-400">"Content-Type: application/json"</span> \<br />
+                  &nbsp;&nbsp;-d <span className="text-zinc-400">'{"{"} "name": "Developer" {"}"}'</span>
+                </div>
+              </div>
+
+              {/* Action Controls */}
+              <div className="flex flex-col sm:flex-row items-center gap-3">
+                <button 
+                  onClick={handleTriggerRunService}
+                  disabled={triggerLoading}
+                  className={`w-full sm:w-auto bg-[#D1FF00] hover:bg-[#D2FF30] text-black font-black py-4 px-8 text-xs uppercase tracking-widest transition-all rounded cursor-pointer shadow-[0_0_20px_rgba(209,255,0,0.15)] flex justify-center items-center space-x-2 ${triggerLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <Send className={`w-3.5 h-3.5 ${triggerLoading ? 'animate-bounce' : ''}`} />
+                  <span>{triggerLoading ? 'Pinging Service...' : 'Ping Cloud Run Endpoint'}</span>
+                </button>
+                <button 
+                  onClick={() => {
+                    setTriggerResult(null);
+                    setTriggerError(null);
+                    playNavChime();
+                  }}
+                  disabled={triggerLoading || (!triggerResult && !triggerError)}
+                  className="w-full sm:w-auto bg-zinc-950 border border-zinc-900 hover:border-zinc-850 text-zinc-450 hover:text-white py-4 px-6 text-xs uppercase tracking-wider transition-all rounded cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Clear Terminal
+                </button>
+              </div>
+
+              {/* Status Output Console */}
+              <div className="space-y-2 pt-1 text-left">
+                <span className="text-zinc-500 text-[10px] uppercase font-bold tracking-wider font-mono block">Terminal Console Output</span>
+                
+                {triggerLoading && (
+                  <div className="bg-zinc-950 border border-zinc-900 rounded-2xl p-6 flex flex-col items-center justify-center font-mono text-zinc-400 space-y-3">
+                    <div className="h-6 w-6 rounded-full border-2 border-t-[#D1FF00] border-zinc-850 animate-spin"></div>
+                    <p className="text-[10px] uppercase tracking-widest text-[#D1FF00] animate-pulse">Requesting OIDC identity token & dispatching payloads...</p>
+                  </div>
+                )}
+
+                {!triggerLoading && !triggerResult && !triggerError && (
+                  <div className="bg-zinc-950 border border-zinc-900 rounded-2xl p-6 text-center font-mono text-zinc-600 text-[11px]">
+                    Console idle. Tap "Ping Cloud Run Endpoint" to fire the secure sync token.
+                  </div>
+                )}
+
+                {triggerError && (
+                  <div className="bg-red-950/20 border border-red-500/20 rounded-2xl p-4 text-left font-mono text-[11px] leading-normal text-red-200">
+                    <span className="text-red-400 font-extrabold uppercase text-[9px] block mb-1">☠️ [TRANSPORT TIMEOUT OR AUTH CONNECTION ERROR]</span>
+                    {triggerError}
+                  </div>
+                )}
+
+                {triggerResult && (
+                  <div className="bg-zinc-950 border border-zinc-900 rounded-2xl p-4 font-mono text-[11px] leading-relaxed text-zinc-300 space-y-4">
+                    <div className="flex items-center justify-between pb-3 border-b border-zinc-900">
+                      <div className="flex items-center space-x-2">
+                        <span className={`h-2 w-2 rounded-full ${triggerResult.success ? 'bg-emerald-500' : 'bg-rose-500 animate-ping'}`}></span>
+                        <span className="font-extrabold uppercase text-[9px] text-zinc-500">HTTP Code:</span>
+                        <span className={`font-black ${triggerResult.success ? 'text-emerald-400' : 'text-rose-450'}`}>
+                          {triggerResult.status} {triggerResult.statusText || (triggerResult.success ? 'OK' : 'Error')}
+                        </span>
+                      </div>
+                      <span className="text-[9.5px] text-zinc-550">Method: POST</span>
+                    </div>
+
+                    <div className="space-y-1">
+                      <span className="text-zinc-600 uppercase text-[9px] block font-bold tracking-wider">Transport Identifiers:</span>
+                      <div className="bg-[#060606] p-2.5 rounded-lg border border-zinc-900 text-zinc-450 overflow-x-auto text-[10px] whitespace-nowrap">
+                        URL: <span className="text-zinc-300">{triggerResult.invokedUrl}</span><br />
+                        Bearer Token Header: <span className="text-emerald-500 font-bold">{triggerResult.usedTokenHeader || 'none'}</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <span className="text-zinc-600 uppercase text-[9px] block font-bold tracking-wider">Parsed JSON Response Body:</span>
+                      <pre className="bg-[#050505] p-3.5 rounded-xl border border-[#D1FF00]/10 text-emerald-400 text-[10.5px] overflow-x-auto leading-normal whitespace-pre-wrap select-text scrollbar-thin">
+                        {JSON.stringify(triggerResult.data || triggerResult, null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

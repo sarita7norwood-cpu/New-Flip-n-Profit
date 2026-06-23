@@ -389,7 +389,24 @@ export default function InteractiveScanner() {
         <div className="lg:col-span-12 xl:col-span-7 bg-[#050505] p-6 md:p-8 flex flex-col justify-between overflow-y-auto border-t lg:border-t-0 border-zinc-900">
           {!scanning && !result ? (
             /* Blank state */
-            <div className="h-full flex flex-col items-center justify-center py-20 text-center max-w-md mx-auto">
+            <div className="h-full flex flex-col items-center justify-center py-12 text-center max-w-md mx-auto">
+              
+              {/* Appraisal interruption warning callout */}
+              {scanStatus && (scanStatus.includes('failed') || scanStatus.includes('timeout')) && (
+                <div className="w-full mb-6 bg-red-950/20 border border-red-500/20 rounded-2xl p-4 flex items-start space-x-3 text-red-200 animate-fade-in text-left">
+                  <div className="bg-red-500/10 p-2 rounded-xl text-red-400 mt-0.5 shrink-0">
+                    <Info className="w-4 h-4" />
+                  </div>
+                  <div className="text-[11px] leading-relaxed">
+                    <span className="font-extrabold uppercase text-red-400 block mb-0.5 tracking-wider">Appraisal Connection Note</span>
+                    {scanStatus}
+                    <p className="mt-1.5 text-zinc-400 leading-normal">
+                      The AI provider might feel temporary high traffic load. You can click retry, or tap any of the pre-baked inventory items below to instantly preview the full appraisal dashboard experience!
+                    </p>
+                  </div>
+                </div>
+              )}
+
               <div className="h-16 w-16 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-500 mb-6">
                 <Sparkles className="w-8 h-8 text-[#D1FF00]" />
               </div>
